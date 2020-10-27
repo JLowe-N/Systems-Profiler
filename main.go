@@ -1,3 +1,7 @@
+/*This package is a CLI tool that will make requests against a 
+specified URL and will print out the response body. If if the profile flag is 
+set with an integer, it will create a profile for multiple requests including 
+the request-response cycle time, response sizes, and any errors returned.*/
 package main
 
 import (
@@ -106,11 +110,8 @@ func makeRequest(host string, port string, path string, printResBody bool) (int6
 
 	if err != nil {
 		log.Fatal(err)
-		endTime := time.Now()
-		timeElapsed := endTime.Sub(startTime).Milliseconds()
-
-		return timeElapsed, 0, err.Error(), 0
 	}
+
 	defer conn.Close()
 	buf := make([]byte, 0, 4096)
 	// Define the request string
