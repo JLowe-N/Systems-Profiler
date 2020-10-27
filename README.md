@@ -65,8 +65,8 @@ returned page size is mostly attributable to the background image and my avatar.
 Both profiles did not detect any errors during the 1000 requests made.
 
 [Profile 1](/Profiles/Profile_linktree-justinlowen-workers-dev.JPG)
-`go run main.go -url=https://linktree.justinlowen.workers.dev -profile=1000`
-`
+```go run main.go -url=https://linktree.justinlowen.workers.dev -profile=1000```
+```
 Profile (Cloudflare Workers Project)
 https://linktree.justinlowen.workers.dev
 Number of Requests: 1000
@@ -78,11 +78,11 @@ Smallest Response: 8414 bytes
 Largest Response: 8688 bytes
 Request Success: 100%
 Error Codes: []
-`
+```
 
 [Profile 2](/Profiles/Profile_linktr-ee-queensland.JPG)
-`go run main.go -url=https://linktr.ee/queensland -profile=1000`
-`
+```go run main.go -url=https://linktr.ee/queensland -profile=1000```
+```
 Profile (Linktr.ee Page)
 https://linktr.ee/queensland
 Number of Requests: 1000
@@ -94,14 +94,14 @@ Smallest Response: 60267 bytes
 Largest Response: 60390 bytes
 Request Success: 100%
 Error Codes: []
-`
+```
 
 Inspection of https://linktree.justinlowen.workers.dev/links
 Profile flag set to 0
 Page returns JSON response containing the page links
 Note: If profile flag is not set, Systems Profiler will only print response body.
-`go run main.go -url=https://linktree.justinlowen.workers.dev/links`
-`
+```go run main.go -url=https://linktree.justinlowen.workers.dev/links```
+```
 :::Response Body:::
 [
   {
@@ -126,7 +126,7 @@ Note: If profile flag is not set, Systems Profiler will only print response body
   }
 ]
 :::End of Response Body:::
-`
+```
 
 ## License
 
