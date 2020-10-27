@@ -133,7 +133,9 @@ Note: If profile flag is not set, Systems Profiler will only print response body
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-Justin Lowen: [https://jlowe-n.github.io/](https://jlowe-n.github.io/) [Justin.G.Lowen@gmail.com](mailto:Justin.G.Lowen@gmail.com)
+Justin Lowen: 
+[-https://jlowe-n.github.io/](https://jlowe-n.github.io/) 
+[-Justin.G.Lowen@gmail.com](mailto:Justin.G.Lowen@gmail.com)
 
 Project Link: [https://github.com/JLowe-N/Systems-Profiler](https://github.com/JLowe-N/Systems-Profiler)
 
