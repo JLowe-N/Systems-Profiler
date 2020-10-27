@@ -39,7 +39,7 @@ For documentation, with the terminal in the same directory as main.go:
 
 ### Usage
 
-Using the above commands, a profile for requests made to different sites can be
+Using the above commands, a profile for requests to a target site can be
 made. The profile will give information about the response time, the size of
 responses, any errors or HTTP response status error codes, and the % of requests
 that are successful.
