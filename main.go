@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-/* Main handles parsing the flags, including the url and request count for the
+/*main handles parsing the flags, including the url and request count for the
 profile.  URL is parsed into scheme (for setting TCP port to default), host, and
 path.  If profile flag is set with an positive integer, requests will be made
 with the makeRequest function and profile statistics will be calculated and
