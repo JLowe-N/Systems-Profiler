@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,7 +30,12 @@ func main() {
 	}
 	parsedURL = strings.SplitN(parsedURL[1], "/", 2)
 	host := parsedURL[0]
-	path := parsedURL[1]
+	var path string
+	if len(parsedURL) > 1 {
+		path = parsedURL[1]
+	} else {
+		path = ""
+	}
 
 	if *requestCount > 0 {
 		times := make([]int64, *requestCount)
@@ -89,7 +96,14 @@ func main() {
 
 func makeRequest(host string, port string, path string, printResBody bool) (int64, int, string, int) {
 	startTime := time.Now()
-	conn, err := tls.Dial("tcp", host+":"+port, nil)
+	var conn net.Conn
+	var err error
+	if port == "443" {
+		conn, err = tls.Dial("tcp", host+":"+port, nil)
+	} else if port == "80" {
+		conn, err = net.Dial("tcp", host+":"+port)
+	}
+
 	if err != nil {
 		log.Fatal(err)
 		endTime := time.Now()
@@ -123,6 +137,14 @@ func makeRequest(host string, port string, path string, printResBody bool) (int6
 	}
 	s := string(buf)
 	result := strings.Split(s, "\r\n\r\n")
+	headers := strings.Split(result[0], "\r\n")
+	status := strings.Split(headers[0], " ")
+	statusCode := status[1]
+	testCode, err := strconv.Atoi(statusCode)
+	var errorCode string
+	if testCode >= 400 {
+		errorCode = statusCode
+	}
 
 	endTime := time.Now()
 	timeElapsed := endTime.Sub(startTime).Milliseconds()
@@ -130,8 +152,8 @@ func makeRequest(host string, port string, path string, printResBody bool) (int6
 	if printResBody {
 		fmt.Println(":::Response Body:::")
 		fmt.Println(result[1])
-		fmt.Println(":::End of Repsonse Body:::")
+		fmt.Println(":::End of Response Body:::")
 	}
-	return timeElapsed, len(buf), "", 1
+	return timeElapsed, len(buf), errorCode, 0
 
 }
