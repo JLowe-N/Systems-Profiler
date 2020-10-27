@@ -1,6 +1,6 @@
-/*This package is a CLI tool that will make requests against a 
-specified URL and will print out the response body. If if the profile flag is 
-set with an integer, it will create a profile for multiple requests including 
+/*This package is a CLI tool that will make requests against a
+specified URL and will print out the response body. If if the profile flag is
+set with an integer, it will create a profile for multiple requests including
 the request-response cycle time, response sizes, and any errors returned.*/
 package main
 
@@ -17,8 +17,14 @@ import (
 	"time"
 )
 
+/* Main handles parsing the flags, including the url and request count for the
+profile.  URL is parsed into scheme (for setting TCP port to default), host, and
+path.  If profile flag is set with an positive integer, requests will be made
+with the makeRequest function and profile statistics will be calculated and
+printed in main.  If profile flag is not set, then a single makeRequest call is
+made which will also print the response body.*/
 func main() {
-	stringURL := flag.String("url", "https://linktree.justinlowen.workers.dev/links", "a string representing a full url")
+	stringURL := flag.String("url", "https://linktree.justinlowen.workers.dev/links", "a string representing a full url, Example: https://www.cloudflare.com")
 	requestCount := flag.Int("profile", 0, "an integer specifying number of requests for profile")
 
 	flag.Parse()
@@ -42,11 +48,13 @@ func main() {
 	}
 
 	if *requestCount > 0 {
+		// Initialize request statistics array
 		times := make([]int64, *requestCount)
 		responseSizes := make([]int, *requestCount)
 		errors := make([]string, *requestCount)
 		success := make([]int, *requestCount)
 
+		// Perform requests, then sort times for finding median
 		for i := 0; i < *requestCount; i++ {
 			times[i], responseSizes[i], errors[i], success[i] = makeRequest(host, port, path, false)
 		}
@@ -54,6 +62,7 @@ func main() {
 			return times[i] < times[j]
 		})
 
+		// Calculate profile statistics
 		fastestTime := times[0]
 		slowestTime := times[0]
 		meanTime := times[0]
@@ -82,6 +91,7 @@ func main() {
 		meanTime = meanTime / int64(len(times))
 		percentSuccess = percentSuccess / float64(len(success)) * 100
 
+		// Final profile printout
 		fmt.Println("Profile")
 		fmt.Println(*stringURL)
 		fmt.Println("Number of Requests:", *requestCount)
@@ -94,14 +104,22 @@ func main() {
 		fmt.Printf("Request Success: %0.0f %% \n", percentSuccess)
 		fmt.Println("Error Codes:", errors)
 	} else {
+		// If no profile, make a sample request and print request body.
 		makeRequest(host, port, path, true)
 	}
 }
 
+/*makeRequest takes in the parsed URL flag's host, port, and path variables and
+makes either an http or https request to the URL.  It also takes the
+printResBody argument which is set to true if a profile is not being generated and
+will print the response body.  makeRequest returns profile datapoints to be
+added to arrays in the main function. Each request's time, size, response error
+codes, and a success/failure integer is returned.*/
 func makeRequest(host string, port string, path string, printResBody bool) (int64, int, string, int) {
-	startTime := time.Now()
+	// Establish connection, if connection fails program will exit and error will be printed
 	var conn net.Conn
 	var err error
+	startTime := time.Now()
 	if port == "443" {
 		conn, err = tls.Dial("tcp", host+":"+port, nil)
 	} else if port == "80" {
@@ -112,15 +130,16 @@ func makeRequest(host string, port string, path string, printResBody bool) (int6
 		log.Fatal(err)
 	}
 
+	//  send Request
 	defer conn.Close()
-	buf := make([]byte, 0, 4096)
-	// Define the request string
 	if len(path) > 0 {
 		fmt.Fprintf(conn, "GET /"+path+" HTTP/1.1\r\nHost: "+host+"\r\nConnection: Close\r\n\r\n")
 	} else {
 		fmt.Fprintf(conn, "GET / HTTP/1.1\r\nHost: "+host+"\r\nConnection: Close\r\n\r\n")
 	}
 
+	// read Response
+	buf := make([]byte, 0, 4096)
 	for {
 		tmp := make([]byte, 256)
 		n, err := conn.Read(tmp)
@@ -136,25 +155,35 @@ func makeRequest(host string, port string, path string, printResBody bool) (int6
 		buf = append(buf, tmp[:n]...)
 
 	}
+	endTime := time.Now()
+	timeElapsed := endTime.Sub(startTime).Milliseconds()
 	s := string(buf)
+
+	// Split response into component parts
 	result := strings.Split(s, "\r\n\r\n")
 	headers := strings.Split(result[0], "\r\n")
 	status := strings.Split(headers[0], " ")
 	statusCode := status[1]
+
+	// Check for status indicating error in request/response
 	testCode, err := strconv.Atoi(statusCode)
 	var errorCode string
+	var successValue int
 	if testCode >= 400 {
 		errorCode = statusCode
+		successValue = 0
+	} else {
+		errorCode = ""
+		successValue = 1
 	}
 
-	endTime := time.Now()
-	timeElapsed := endTime.Sub(startTime).Milliseconds()
-
+	// If not making a profile, print response's body for inspection.
 	if printResBody {
 		fmt.Println(":::Response Body:::")
 		fmt.Println(result[1])
 		fmt.Println(":::End of Response Body:::")
 	}
-	return timeElapsed, len(buf), errorCode, 0
+
+	return timeElapsed, len(buf), errorCode, successValue
 
 }
