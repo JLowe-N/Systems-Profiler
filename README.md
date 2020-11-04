@@ -97,9 +97,13 @@ Error Codes: []
 ```
 
 Inspection of https://linktree.justinlowen.workers.dev/links
+
 Profile flag set to 0
+
 Page returns JSON response containing the page links
+
 Note: If profile flag is not set, Systems Profiler will only print response body.
+
 ```go run main.go -url=https://linktree.justinlowen.workers.dev/links```
 ```
 :::Response Body:::
